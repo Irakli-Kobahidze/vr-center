@@ -790,7 +790,7 @@ function arcDesk(A, steps = 48) {
 const d2550 = arcDesk(P.A2550);
 [.28, .72].forEach((f, k) => { const s = d2550(f); workplace('АРМ ' + (18 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Технологическая группа · e3', d2550(.5).c, 1.75, 'grp'));
-const d2750 = arcDesk({ ...P.A2750, c: add(P.A2750.c, [.55, 0]), c2: add(P.A2750.c2, [.55, 0]) });   // moved away from the entrance passage toward the corner
+const d2750 = arcDesk({ ...P.A2750, c: add(P.A2750.c, [2.0, 1.0]), c2: add(P.A2750.c2, [2.0, 1.0]) });   // moved away from the entrance passage toward the corner
 [1 / 6, .5, 5 / 6].forEach((f, k) => { const s = d2750(f); workplace('АРМ ' + (15 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Креативные решения · e2', d2750(.5).c, 1.75, 'grp'));
 
