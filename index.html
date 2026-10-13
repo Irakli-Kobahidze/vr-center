@@ -486,7 +486,9 @@ const chairsGroup = new THREE.Group(); world.add(chairsGroup);
 /* ---------- room shell ---------- */
 const XR = 13.0;   // right wall of the screen corner
 const XC = 16.0, ZC = 7.0;   // corridor cut through the lower part of the right wall, running on along the windows
-const FACADE_END = [XC, 9.784 + (XC - 6.057) * ((9.784 - 7.9468) / (6.057 - 1.5661))];
+const FACADE_BEND = [6.0573, 9.784];                                   // end of the glazed run taken from the drawing
+const F2DIR = norm([13 - 6.0573, 9.35 - 9.784]);                         // second run: almost no gap behind the right column
+const FACADE_END = add(FACADE_BEND, mul(F2DIR, (XC - 6.0573) / F2DIR[0]));
 const ROOM = [[1.5661, 0.6096], [5.6212, 0.6096], [5.6212, .41], [3.4, .41], [3.4, -.59], [3.3, -.59], [3.3, .06], [2.2, .06], [2.2, -.59], [2.1, -.59], [2.1, -5.99], [2.2, -5.99], [2.2, -6.64], [3.3, -6.64], [3.3, -5.99], [3.4, -5.99], [3.4, -6.99], [10.2, -6.99], [10.2, .41], [7.9199, .41], [7.9199, 0.6096], [XR, 0.6096], [XR, ZC], [XC, ZC], FACADE_END, [6.0573, 9.784], [1.5661, 7.9468]];
 world.add(flat(ROOM, 0, MAT.floor));
 const ceiling = new THREE.Group(); world.add(ceiling);
@@ -550,7 +552,7 @@ solidWall([XR, ZC], [XC, ZC], [0, -1]);
 solidWall([XC, ZC], FACADE_END, [1, 0]);
 /* glazed facade */
 const fN = norm([-(9.784 - 7.9468), 6.0573 - 1.5661]);
-glassWall(FACADE_END, [6.0573, 9.784], fN);
+glassWall(FACADE_END, FACADE_BEND, [F2DIR[1], -F2DIR[0]].map(v => -v));
 glassWall([6.0573, 9.784], [1.5661, 7.9468], fN);
 glassWall([1.5661, 7.9468], [1.5661, .6096], [-1, 0]);
 /* outdoors */
@@ -790,7 +792,7 @@ function arcDesk(A, steps = 48) {
 const d2550 = arcDesk(P.A2550);
 [.28, .72].forEach((f, k) => { const s = d2550(f); workplace('АРМ ' + (18 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Технологическая группа · e3', d2550(.5).c, 1.75, 'grp'));
-const d2750 = arcDesk({ ...P.A2750, c: add(P.A2750.c, [2.0, 1.0]), c2: add(P.A2750.c2, [2.0, 1.0]) });   // moved away from the entrance passage toward the corner
+const d2750 = arcDesk({ ...P.A2750, ang: [-.746, -1.150], c: add(P.A2750.c, [2.0, 1.0]), c2: add(P.A2750.c2, [2.0, 1.0]) });   // lengthened to ≈3.2 m   // moved away from the entrance passage toward the corner
 [1 / 6, .5, 5 / 6].forEach((f, k) => { const s = d2750(f); workplace('АРМ ' + (15 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Креативные решения · e2', d2750(.5).c, 1.75, 'grp'));
 
@@ -905,22 +907,28 @@ const wallScreenTex = canvasTex(2400, 820, (g, w, h) => {
   });
 });
 {
-  // same size as before (column to column), now set right along the glazed facade, facing the teacher
-  const half = (len(sub(P.cols[1].c, P.cols[0].c))) / 2;
-  const fa = [1.5661, 7.9468], u = norm(sub([6.0573, 9.784], fa)), n = [u[1], -u[0]];   // n points into the room
-  const t = (6.6 - fa[0]) / u[0], cP = add(add(fa, mul(u, t)), mul(n, .45));            // .45 m clears the sill and radiators
-  const a = sub(cP, mul(u, half)), b = add(cP, mul(u, half));
-  const vw = new THREE.Group(); world.add(vw); walls.push({ obj: vw, a, n: neg(n) });   // cut away like a wall when viewed from outside
-  const body = beam(a, b, 0, H, .12, MAT.wall); vw.add(body);                 // white cladding, black only around the screen
-  const W = len(sub(b, a)) - .1, y0 = .78, y1 = H - .03;
-  const scr = new THREE.Mesh(new THREE.PlaneGeometry(W, y1 - y0), std({ map: wallScreenTex, emissive: 0xffffff, emissiveMap: wallScreenTex, emissiveIntensity: .9, roughness: .3 }));
-  const m = mid(a, b), pf = add(m, mul(n, .062));
-  place(scr, pf, (y0 + y1) / 2, n); vw.add(scr);
-  const bezel = new THREE.Mesh(new THREE.BoxGeometry(W + .08, y1 - y0 + .05, .01), MAT.plastic); place(bezel, add(m, mul(n, .05)), (y0 + y1) / 2, n); vw.add(bezel);
-  for (let i = 1; i < 4; i++) {                                    // thin seams between video-wall panels
-    const sp = add(a, mul(u, W * i / 4 + .05));
-    const seam = new THREE.Mesh(new THREE.BoxGeometry(.004, y1 - y0, .002), MAT.plastic); place(seam, add(sp, mul(n, .064)), (y0 + y1) / 2, n); vw.add(seam);
+  // ≈7.2 m of screen along the glass, folded where the facade bends; the right leg stops at the right column
+  const OFF = .45, y0 = .78, y1 = H - .03;                                   // .45 m clears the sill and radiators
+  const u1 = norm(sub(FACADE_BEND, [1.5661, 7.9468])), n1 = [u1[1], -u1[0]];  // into the room
+  const u2 = F2DIR, n2 = [u2[1], -u2[0]];
+  const corner = lineInter(add(FACADE_BEND, mul(n1, OFF)), u1, add(FACADE_BEND, mul(n2, OFF)), add(add(FACADE_BEND, mul(n2, OFF)), u2));
+  const colX = P.cols[1].c[0] - P.cols[1].r - .12;
+  const L2 = (colX - corner[0]) / u2[0], L1 = 7.2 - L2;
+  const legs = [[sub(corner, mul(u1, L1)), corner, n1, u1], [corner, add(corner, mul(u2, L2)), n2, u2]];
+  const vw = new THREE.Group(); world.add(vw); walls.push({ obj: vw, a: corner, n: neg(n1) });
+  let uOff = 0;                                                        // the viewer sees the right leg on the left, so it takes the start of the picture
+  for (const [a, b, n, u] of [...legs].reverse()) {
+    const L = len(sub(b, a)), m = mid(a, b);
+    vw.add(beam(a, b, 0, H, .12, MAT.wall));
+    const tex = wallScreenTex.clone(); tex.repeat.set(L / 7.2, 1); tex.offset.set(uOff / 7.2, 0); uOff += L;
+    wallScreenTex.userData.clones = [...(wallScreenTex.userData.clones || []), tex];
+    const scr = new THREE.Mesh(new THREE.PlaneGeometry(L - .02, y1 - y0), std({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .9, roughness: .3 }));
+    place(scr, add(m, mul(n, .062)), (y0 + y1) / 2, n); vw.add(scr);
+    const bezel = new THREE.Mesh(new THREE.BoxGeometry(L + .02, y1 - y0 + .05, .01), MAT.plastic); place(bezel, add(m, mul(n, .05)), (y0 + y1) / 2, n); vw.add(bezel);
+    for (let k = 1; k < Math.round(L / 1.8); k++) { const sp = add(a, mul(u, L * k / Math.round(L / 1.8)));
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(.004, y1 - y0, .002), MAT.plastic); place(seam, add(sp, mul(n, .064)), (y0 + y1) / 2, n); vw.add(seam); }
   }
+  const m = corner, n = n1;
   world.add(label('ГЭСЦИИ · видеостена вдоль окон', add(m, mul(n, .2)), 3.0));
 }
 /* (Group.add removes from world automatically) */
@@ -1212,12 +1220,12 @@ scene.add(sun);
   const roof = new THREE.Mesh(new THREE.BoxGeometry(8.7, .05, 7.6), new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
   roof.position.set(6.05, H + .03, -3.29); roof.castShadow = true; scene.add(roof);
 }
-for (const [x, z] of [[4, 3], [8.5, 3], [6, 7], [10, 9.5], [13.4, 9.6], [4.2, -2], [7.4, -2], [4.2, -5.3], [7.4, -5.3], [9.4, -3.6]]) { const l = new THREE.PointLight(0xfff8ec, 6, 9, 2); l.position.set(x, H - .2, z); scene.add(l); }
+for (const [x, z] of [[4, 3], [8.5, 3], [6, 7], [10, 8.6], [14.0, 8.1], [4.2, -2], [7.4, -2], [4.2, -5.3], [7.4, -5.3], [9.4, -3.6]]) { const l = new THREE.PointLight(0xfff8ec, 6, 9, 2); l.position.set(x, H - .2, z); scene.add(l); }
 scene.traverse(o => { if (o.material && 'envMapIntensity' in o.material) o.material.envMapIntensity = .45; });
 MAT.glass.envMapIntensity = 1;
 
 /* ---------- views ---------- */
-world.add(label('Коридор', [(XR + XC) / 2, 9.4], 1.0, 'grp'));
+world.add(label('Коридор', [(XR + XC) / 2, 8.1], 1.0, 'grp'));
 const VIEWS = {
   overview: { p: [-2.6, 13.5, 17.5], t: [7.6, 0, 5.6] },
   plan: { p: [7.6, 31, 0.82], t: [7.6, 0, .8] },
@@ -1296,6 +1304,7 @@ Promise.race([
   binaryCol.material.map.userData.redraw();
   boardTex.userData.redraw();
   wallScreenTex.userData.redraw();
+  for (const t of wallScreenTex.userData.clones || []) t.needsUpdate = true;
   buildLiftGraphics();
   bigScreenTex.userData.redraw();
   document.getElementById('loading').remove();
