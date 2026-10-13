@@ -299,6 +299,15 @@ const P = {"V":[[6.0429,4.3178],[10.0703,9.0384],[10.0867,9.0556],[10.1064,9.072
 "A2550":{"c":[6.704,7.8643],"c2":[6.5003,7.5033],"ro":6.8301,"ri":5.6164,"ang":[-1.9,-2.2754]},
 "A2750":{"c":[4.1711,8.3272],"c2":[4.468,7.9119],"ro":7.9337,"ri":6.6239,"ang":[-0.7739,-1.1221]}};
 
+/* client: the whole V desk moves 1.9 m toward the right wall together with its two columns,
+   so the right column ends up against that wall */
+const VDX = 1.9;
+P.V = P.V.map(([x, z]) => [x + VDX, z]);
+P.cols = P.cols.map(c => ({ ...c, c: [c.c[0] + VDX, c.c[1]] }));
+const shiftDeep = (v) => typeof v[0] === 'number' ? [v[0] + VDX, v[1]] : v.map(shiftDeep);   // joints hold points, segments and lists of segments
+for (const k of Object.keys(P.joints)) P.joints[k] = shiftDeep(P.joints[k]);
+const NOTCH = [5.24 + VDX, 3.11];   // teacher's place in the 833 mm notch of the corner module
+
 const H = 3.2;           // ceiling height
 const TOP = 0.76;        // desk height
 const BROWN = '#6b4630';
@@ -485,10 +494,8 @@ const chairsGroup = new THREE.Group(); world.add(chairsGroup);
 
 /* ---------- room shell ---------- */
 const XR = 13.0;   // right wall of the screen corner
-const XC = 16.0, ZC = 7.0;   // corridor cut through the lower part of the right wall, running on along the windows
-const FACADE_BEND = [6.0573, 9.784];                                   // end of the glazed run taken from the drawing
-const F2DIR = norm([13 - 6.0573, 9.35 - 9.784]);                         // second run: almost no gap behind the right column
-const FACADE_END = add(FACADE_BEND, mul(F2DIR, (XC - 6.0573) / F2DIR[0]));
+const XC = 16.0, ZC = 9.45;  // corridor cut through the lower part of the right wall, just past the right column
+const FACADE_END = [XC, 9.784 + (XC - 6.057) * ((9.784 - 7.9468) / (6.057 - 1.5661))];
 const ROOM = [[1.5661, 0.6096], [5.6212, 0.6096], [5.6212, .41], [3.4, .41], [3.4, -.59], [3.3, -.59], [3.3, .06], [2.2, .06], [2.2, -.59], [2.1, -.59], [2.1, -5.99], [2.2, -5.99], [2.2, -6.64], [3.3, -6.64], [3.3, -5.99], [3.4, -5.99], [3.4, -6.99], [10.2, -6.99], [10.2, .41], [7.9199, .41], [7.9199, 0.6096], [XR, 0.6096], [XR, ZC], [XC, ZC], FACADE_END, [6.0573, 9.784], [1.5661, 7.9468]];
 world.add(flat(ROOM, 0, MAT.floor));
 const ceiling = new THREE.Group(); world.add(ceiling);
@@ -552,7 +559,7 @@ solidWall([XR, ZC], [XC, ZC], [0, -1]);
 solidWall([XC, ZC], FACADE_END, [1, 0]);
 /* glazed facade */
 const fN = norm([-(9.784 - 7.9468), 6.0573 - 1.5661]);
-glassWall(FACADE_END, FACADE_BEND, [F2DIR[1], -F2DIR[0]].map(v => -v));
+glassWall(FACADE_END, [6.0573, 9.784], fN);
 glassWall([6.0573, 9.784], [1.5661, 7.9468], fN);
 glassWall([1.5661, 7.9468], [1.5661, .6096], [-1, 0]);
 /* outdoors */
@@ -767,10 +774,11 @@ for (const s of [longLeg(6.05), shortLeg(2.18)]) world.add(loftFrame(s.O, s.I));
   const s = add(mid(a, b), [0.05, -0.45]);
   world.add(loftFrame(add(s, [-.55, -.05]), add(s, [.55, .12])));
 }
-/* 14 workstations, staggered: the two sides of each leg are offset by half a pitch */
+/* 14 workstations, staggered: the two sides of each leg are offset by half a pitch;
+   the outer side of the long leg stops 1.6 m short of the right wall */
 let n = 1;
-for (const t of [5.23, 4.01, 2.79, 1.57, .35]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
-for (const t of [.96, 2.18, 3.4, 4.62, 5.84]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
+for (const t of [4.6, 3.4, 2.2, 1.0, -.2]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
+for (const t of [.4, 1.6, 2.8, 4.0, 5.2]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
 for (const t of [1.3, -.1]) { const s = shortLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
 for (const t of [.6, 2.0]) { const s = shortLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
 world.add(label('Рабочая группа · e1', add(longLeg(3.1).c, [.0, .0]), 1.75, 'grp'));
@@ -792,13 +800,13 @@ function arcDesk(A, steps = 48) {
 const d2550 = arcDesk(P.A2550);
 [.28, .72].forEach((f, k) => { const s = d2550(f); workplace('АРМ ' + (18 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Технологическая группа · e3', d2550(.5).c, 1.75, 'grp'));
-const d2750 = arcDesk({ ...P.A2750, ang: [-.746, -1.150], c: add(P.A2750.c, [2.0, 1.0]), c2: add(P.A2750.c2, [2.0, 1.0]) });   // lengthened to ≈3.2 m   // moved away from the entrance passage toward the corner
+const d2750 = arcDesk({ ...P.A2750, ang: [-.746, -1.150], c: add(P.A2750.c, [2.35, .05]), c2: add(P.A2750.c2, [2.35, .05]) });   // ≈3.2 m long, clear of the column/board/ЦМФУ on the right wall
 [1 / 6, .5, 5 / 6].forEach((f, k) => { const s = d2750(f); workplace('АРМ ' + (15 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Креативные решения · e2', d2750(.5).c, 1.75, 'grp'));
 
 /* ---------- АРМП: teacher sits right at the corner of e1, in the 833 mm notch ---------- */
 {
-  const notch = [5.24, 3.11];
+  const notch = NOTCH;
   const toTeacher = norm([-.195, -.981]);                 // out of the notch, toward the entrance
   const c = sub(notch, mul(toTeacher, .4));
   workplace('АРМП', c, toTeacher, .4, { monitorAt: -.12, along: [-toTeacher[1], toTeacher[0]], double: true });
@@ -824,7 +832,7 @@ function mfp(p, f, colour) {
   g.traverse(o => { if (o.isMesh) o.castShadow = true; });
   return place(g, p, TOP, f);
 }
-for (const [p, f, name, col] of [[[5.15, .98], [0, 1], 'ЧМФУ', false], [[XR - .4, 6.2], [-1, 0], 'ЦМФУ', true]]) {
+for (const [p, f, name, col] of [[[5.15, .98], [0, 1], 'ЧМФУ', false], [[XR - .4, 5.85], [-1, 0], 'ЦМФУ', true]]) {
   world.add(cabinet(p, f)); world.add(mfp(p, f, col)); world.add(label(name + ' · e5', p, 1.4, 'tbc'));
 }
 /* interactive board 86" on a mobile stand, inside the V, facing the teacher */
@@ -841,18 +849,16 @@ const boardTex = canvasTex(1280, 720, (g, w, h) => {
   g.fillStyle = '#fbfaf8'; for (let i = 0; i < 7; i++) { g.beginPath(); g.arc(w / 2 - 210 + i * 70, h - 28, 12, 0, 7); g.fill(); }
 });
 {
-  const pos = [2.75, 6.35], f = norm(sub([5.24, 3.11], [2.75, 6.35]));   // at the left column, a free passage behind it to the windows
+  // wall-mounted on the right wall between the ЦМФУ cabinet and the right column (a floor stand would hit the chairs)
+  const pos = [XR - .06, 7.45], f = [-1, 0];
   const grp = new THREE.Group();
-  const panel = new THREE.Mesh(new RoundedBoxGeometry(1.96, 1.16, .08, 2, .015), MAT.plastic); panel.position.y = 1.4; grp.add(panel);
+  const panel = new THREE.Mesh(new RoundedBoxGeometry(1.96, 1.16, .08, 2, .015), MAT.plastic); panel.position.y = 1.5; grp.add(panel);
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.07), std({ map: boardTex, emissive: 0xffffff, emissiveMap: boardTex, emissiveIntensity: .55, roughness: .4 }));
-  scr.position.set(0, 1.4, .041); grp.add(scr);
-  for (const x of [-.4, .4]) { const post = new THREE.Mesh(new THREE.BoxGeometry(.07, 1.75, .05), MAT.metal); post.position.set(x, .9, -.07); grp.add(post); }
-  const bar = new THREE.Mesh(new THREE.BoxGeometry(.9, .05, .05), MAT.metal); bar.position.set(0, .45, -.07); grp.add(bar);
-  for (const x of [-.4, .4]) { const foot = new THREE.Mesh(new THREE.BoxGeometry(.07, .05, .7), MAT.metal); foot.position.set(x, .085, -.07); grp.add(foot);
-    for (const z of [-.38, .24]) { const wh = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .03, 14), MAT.plastic); wh.rotation.z = Math.PI / 2; wh.position.set(x, .035, z); grp.add(wh); } }
+  scr.position.set(0, 1.5, .041); grp.add(scr);
+  const tray = new THREE.Mesh(new THREE.BoxGeometry(1.2, .03, .08), MAT.metal); tray.position.set(0, .9, .06); grp.add(tray);
   grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
   place(grp, pos, 0, f); world.add(grp);
-  world.add(label('Интерактивная доска 86″', pos, 2.15, 'tbc'));
+  world.add(label('Интерактивная доска 86″', [XR - .4, 7.45], 2.25, 'tbc'));
 }
 
 /* main screen ГЭСЦИИ on the right wall, slightly curved */
@@ -907,28 +913,22 @@ const wallScreenTex = canvasTex(2400, 820, (g, w, h) => {
   });
 });
 {
-  // ≈7.2 m of screen along the glass, folded where the facade bends; the right leg stops at the right column
-  const OFF = .45, y0 = .78, y1 = H - .03;                                   // .45 m clears the sill and radiators
-  const u1 = norm(sub(FACADE_BEND, [1.5661, 7.9468])), n1 = [u1[1], -u1[0]];  // into the room
-  const u2 = F2DIR, n2 = [u2[1], -u2[0]];
-  const corner = lineInter(add(FACADE_BEND, mul(n1, OFF)), u1, add(FACADE_BEND, mul(n2, OFF)), add(add(FACADE_BEND, mul(n2, OFF)), u2));
-  const colX = P.cols[1].c[0] - P.cols[1].r - .12;
-  const L2 = (colX - corner[0]) / u2[0], L1 = 7.2 - L2;
-  const legs = [[sub(corner, mul(u1, L1)), corner, n1, u1], [corner, add(corner, mul(u2, L2)), n2, u2]];
-  const vw = new THREE.Group(); world.add(vw); walls.push({ obj: vw, a: corner, n: neg(n1) });
-  let uOff = 0;                                                        // the viewer sees the right leg on the left, so it takes the start of the picture
-  for (const [a, b, n, u] of [...legs].reverse()) {
-    const L = len(sub(b, a)), m = mid(a, b);
-    vw.add(beam(a, b, 0, H, .12, MAT.wall));
-    const tex = wallScreenTex.clone(); tex.repeat.set(L / 7.2, 1); tex.offset.set(uOff / 7.2, 0); uOff += L;
-    wallScreenTex.userData.clones = [...(wallScreenTex.userData.clones || []), tex];
-    const scr = new THREE.Mesh(new THREE.PlaneGeometry(L - .02, y1 - y0), std({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .9, roughness: .3 }));
-    place(scr, add(m, mul(n, .062)), (y0 + y1) / 2, n); vw.add(scr);
-    const bezel = new THREE.Mesh(new THREE.BoxGeometry(L + .02, y1 - y0 + .05, .01), MAT.plastic); place(bezel, add(m, mul(n, .05)), (y0 + y1) / 2, n); vw.add(bezel);
-    for (let k = 1; k < Math.round(L / 1.8); k++) { const sp = add(a, mul(u, L * k / Math.round(L / 1.8)));
-      const seam = new THREE.Mesh(new THREE.BoxGeometry(.004, y1 - y0, .002), MAT.plastic); place(seam, add(sp, mul(n, .064)), (y0 + y1) / 2, n); vw.add(seam); }
+  // ≈7.3 m wide (the original column-to-column span), right along the glazed facade, facing the teacher
+  const half = 7.356 / 2;
+  const fa = [1.5661, 7.9468], u = norm(sub([6.0573, 9.784], fa)), n = [u[1], -u[0]];   // n points into the room
+  const t = (6.6 + VDX - fa[0]) / u[0], cP = add(add(fa, mul(u, t)), mul(n, .45));            // .45 m clears the sill and radiators
+  const a = sub(cP, mul(u, half)), b = add(cP, mul(u, half));
+  const vw = new THREE.Group(); world.add(vw); walls.push({ obj: vw, a, n: neg(n) });   // cut away like a wall when viewed from outside
+  vw.add(beam(a, b, 0, H, .12, MAT.wall));                                     // white cladding, black only around the screen
+  const W = len(sub(b, a)) - .1, y0 = .78, y1 = H - .03;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(W, y1 - y0), std({ map: wallScreenTex, emissive: 0xffffff, emissiveMap: wallScreenTex, emissiveIntensity: .9, roughness: .3 }));
+  const m = mid(a, b);
+  place(scr, add(m, mul(n, .062)), (y0 + y1) / 2, n); vw.add(scr);
+  const bezel = new THREE.Mesh(new THREE.BoxGeometry(W + .08, y1 - y0 + .05, .01), MAT.plastic); place(bezel, add(m, mul(n, .05)), (y0 + y1) / 2, n); vw.add(bezel);
+  for (let i = 1; i < 4; i++) {                                    // thin seams between video-wall panels
+    const sp = add(a, mul(u, W * i / 4 + .05));
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(.004, y1 - y0, .002), MAT.plastic); place(seam, add(sp, mul(n, .064)), (y0 + y1) / 2, n); vw.add(seam);
   }
-  const m = corner, n = n1;
   world.add(label('ГЭСЦИИ · видеостена вдоль окон', add(m, mul(n, .2)), 3.0));
 }
 /* (Group.add removes from world automatically) */
@@ -1220,12 +1220,12 @@ scene.add(sun);
   const roof = new THREE.Mesh(new THREE.BoxGeometry(8.7, .05, 7.6), new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
   roof.position.set(6.05, H + .03, -3.29); roof.castShadow = true; scene.add(roof);
 }
-for (const [x, z] of [[4, 3], [8.5, 3], [6, 7], [10, 8.6], [14.0, 8.1], [4.2, -2], [7.4, -2], [4.2, -5.3], [7.4, -5.3], [9.4, -3.6]]) { const l = new THREE.PointLight(0xfff8ec, 6, 9, 2); l.position.set(x, H - .2, z); scene.add(l); }
+for (const [x, z] of [[4, 3], [8.5, 3], [6, 7], [10, 9.5], [13.4, 9.6], [4.2, -2], [7.4, -2], [4.2, -5.3], [7.4, -5.3], [9.4, -3.6]]) { const l = new THREE.PointLight(0xfff8ec, 6, 9, 2); l.position.set(x, H - .2, z); scene.add(l); }
 scene.traverse(o => { if (o.material && 'envMapIntensity' in o.material) o.material.envMapIntensity = .45; });
 MAT.glass.envMapIntensity = 1;
 
 /* ---------- views ---------- */
-world.add(label('Коридор', [(XR + XC) / 2, 8.1], 1.0, 'grp'));
+world.add(label('Коридор', [(XR + XC) / 2, 9.4], 1.0, 'grp'));
 const VIEWS = {
   overview: { p: [-2.6, 13.5, 17.5], t: [7.6, 0, 5.6] },
   plan: { p: [7.6, 31, 0.82], t: [7.6, 0, .8] },
@@ -1304,7 +1304,6 @@ Promise.race([
   binaryCol.material.map.userData.redraw();
   boardTex.userData.redraw();
   wallScreenTex.userData.redraw();
-  for (const t of wallScreenTex.userData.clones || []) t.needsUpdate = true;
   buildLiftGraphics();
   bigScreenTex.userData.redraw();
   document.getElementById('loading').remove();
