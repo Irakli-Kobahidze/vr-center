@@ -117,6 +117,8 @@
   --accent: #6b4630;
   --accent-soft: #f3ebe4;
   --chip: #ffffff;
+  --lbl: #6b4630;
+  --lbl-line: #c9b3a2;
   --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
   --font-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -137,12 +139,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); o
 #labels { position: fixed; inset: 0; pointer-events: none; }
 #labels.off .lbl { display: none; }
 .lbl {
-  font: 600 11px/1 var(--font-body); color: #fff; background: #6b4630;
+  font: 600 11px/1 var(--font-body); color: #fff; background: var(--lbl);
   padding: 4px 7px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap;
   box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
-.lbl.grp { background: rgba(255,255,255,.92); color: #6b4630; border: 1px solid #c9b3a2; font-weight: 500; }
-.lbl.tbc { background: #fff; color: #6b4630; border: 1px dashed #6b4630; }
+.lbl.grp { background: rgba(255,255,255,.92); color: var(--lbl); border: 1px solid var(--lbl-line); font-weight: 500; }
+.lbl.tbc { background: #fff; color: var(--lbl); border: 1px dashed var(--lbl); }
 
 .panel {
   position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px;
@@ -220,7 +222,7 @@ details > summary::-webkit-details-marker { display: none; }
       <h1>Ситуационный центр ИИ</h1>
       <button class="collapse-btn" id="t-panel" aria-expanded="true" aria-controls="panel-body">Свернуть</button>
     </div>
-    <p class="sub">Основной зал на 19 рабочих мест по чертежу LOTOS (замер 14.09.2026) и лифтовый холл с VR-зоной и нишами для 3D-печати и сканирования.</p>
+    <p class="sub">Основной зал на 21 рабочее место по чертежу LOTOS (замер 14.09.2026) и лифтовый холл с VR-зоной и нишами для 3D-печати и сканирования.</p>
   </header>
 
   <section>
@@ -253,18 +255,19 @@ details > summary::-webkit-details-marker { display: none; }
       <button class="tgl" id="t-labels" aria-pressed="true"><span class="dot"></span>Подписи</button>
       <button class="tgl" id="t-tbc" aria-pressed="true"><span class="dot"></span>Предварительное</button>
       <button class="tgl" id="t-people" aria-pressed="true"><span class="dot"></span>Кресла</button>
+      <button class="tgl" id="t-blue" aria-pressed="false"><span class="dot"></span>Голубой цвет</button>
     </div>
   </section>
 
   <details open id="specs">
     <summary class="sec-t">Мебель и оборудование ▾</summary>
     <ul class="spec">
-      <li><b>e1</b><span>Стол угловой V, лофт-опоры — АРМ 1–14</span><span class="d">лучи 2707 и 6428 мм, ширина 880–1080</span></li>
-      <li><b>e2</b><span>Стол дуговой — группа креативных решений, АРМ 15–17</span><span class="d">2750 × 800 × 760 мм, справа от входа</span></li>
-      <li><b>e3</b><span>Стол дуговой — технологическая группа, АРМ 18–19</span><span class="d">2550 × 800 × 760 мм, слева от входа</span></li>
+      <li><b>e1</b><span>Стол угловой V, лофт-опоры — АРМ 1–16</span><span class="d">лучи 2707 и ≈7400 мм (длинный луч продлён до колонны за стеной), ширина 880–1080</span></li>
+      <li><b>e2</b><span>Стол дуговой — группа креативных решений, АРМ 17–19</span><span class="d">2750 × 800 × 760 мм, справа от входа</span></li>
+      <li><b>e3</b><span>Стол дуговой — технологическая группа, АРМ 20–21</span><span class="d">2550 × 800 × 760 мм, слева от входа</span></li>
       <li><b>e1</b><span>АРМП — место преподавателя прямо на угловом модуле</span><span class="d">в выемке 833 мм, два монитора</span></li>
       <li><b>e5</b><span>Тумбы под МФУ, 2 шт.*</span><span class="d">602 × 700 × 760 мм</span></li>
-      <li><b>ИД</b><span>Интерактивная доска 86″ на мобильной стойке*</span><span class="d">≈ 1960 × 1160 мм, у левой колонны, за ней проход</span></li>
+      <li><b>ИД</b><span>Интерактивная доска 86″ на мобильной стойке*</span><span class="d">≈ 1960 × 1160 мм, за столом технологической группы, у окон</span></li>
       <li><b>e6</b><span>Тумбы в нишах у лифтов: 3D-принтер с вытяжкой, 3D-сканер с полками</span><span class="d">900 × 600 × 770 мм, 2 шт.</span></li>
       <li><b>e4</b><span>Стол администратора VR-зоны (АРМА)</span><span class="d">1700 × 600 × 760 мм, дуговой</span></li>
       <li><b>VR</b><span>VR-площадка, базовые станции, экран ЭVR на стойке</span><span class="d">шестиугольник ≈ 3,1 м</span></li>
@@ -310,8 +313,14 @@ const NOTCH = [5.24 + VDX, 3.11];   // teacher's place in the 833 mm notch of th
 
 const H = 3.2;           // ceiling height
 const TOP = 0.76;        // desk height
-const BROWN = '#6b4630';
-const BROWN_2 = '#a07a5c';
+/* accent palette: brown by default, switchable to light blue from the menu */
+const PALETTES = {
+  brown: { main: '#6b4630', light: '#a07a5c', warm: '#c08a62', mid: '#b79478', pale: '#d9c6b5', grid: '#7a5a43', lid: 0x6b4630, ui: '#6b4630', uiLine: '#c9b3a2' },
+  blue:  { main: '#1f6fb5', light: '#5d9fd8', warm: '#4aa8ee', mid: '#7fb2e0', pale: '#c3dbf2', grid: '#3d6f9e', lid: 0x1f6fb5, ui: '#1f6fb5', uiLine: '#a9c8e6' },
+};
+const ACC = { ...PALETTES.brown };
+let BROWN = ACC.main;
+let BROWN_2 = ACC.light;
 
 /* ---------- small 2D vector helpers (x, z) ---------- */
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
@@ -326,6 +335,18 @@ function lineInter(p, d, a, b) {
   const e = sub(b, a); const den = d[0] * e[1] - d[1] * e[0];
   const s = ((a[0] - p[0]) * e[1] - (a[1] - p[1]) * e[0]) / den;
   return add(p, mul(d, s));
+}
+
+/* client (final plan): the long leg is lengthened so that it runs past the end of the right wall
+   and its column stands beyond the wall end, exactly as on the building drawing */
+const LEXT = 1.0;
+{
+  const lo = P.joints.longOuter, u = norm(sub(lo[1], lo[0])), S = mid(...P.joints.long[2]);
+  const far = (p) => (p[0] - S[0]) * u[0] + (p[1] - S[1]) * u[1] > 5.6;
+  const ext = (p) => far(p) ? add(p, mul(u, LEXT)) : p;
+  P.V = P.V.map(ext);
+  P.joints.longOuter = P.joints.longOuter.map(ext); P.joints.longInner = P.joints.longInner.map(ext);
+  P.cols[1] = { ...P.cols[1], c: add(P.cols[1].c, mul(u, LEXT)) };
 }
 
 /* ---------- renderer / scene ---------- */
@@ -359,6 +380,7 @@ controls.minDistance = 0.3;
 controls.maxDistance = 40;
 
 /* ---------- textures ---------- */
+const ALL_TEX = [];
 function canvasTex(w, h, draw, { repeat = null, srgb = true } = {}) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   draw(c.getContext('2d'), w, h);
@@ -367,6 +389,7 @@ function canvasTex(w, h, draw, { repeat = null, srgb = true } = {}) {
   t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
   t.userData.redraw = () => { const g = c.getContext('2d'); g.clearRect(0, 0, w, h); draw(g, w, h); t.needsUpdate = true; };
+  ALL_TEX.push(t);
   return t;
 }
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
@@ -494,7 +517,7 @@ const chairsGroup = new THREE.Group(); world.add(chairsGroup);
 
 /* ---------- room shell ---------- */
 const XR = 13.0;   // right wall of the screen corner
-const XC = 16.0, ZC = 9.45;  // corridor cut through the lower part of the right wall, just past the right column
+const XC = 16.0, ZC = 7.6;   // the right wall ends here; the lengthened desk and its column continue past it
 const FACADE_END = [XC, 9.784 + (XC - 6.057) * ((9.784 - 7.9468) / (6.057 - 1.5661))];
 const ROOM = [[1.5661, 0.6096], [5.6212, 0.6096], [5.6212, .41], [3.4, .41], [3.4, -.59], [3.3, -.59], [3.3, .06], [2.2, .06], [2.2, -.59], [2.1, -.59], [2.1, -5.99], [2.2, -5.99], [2.2, -6.64], [3.3, -6.64], [3.3, -5.99], [3.4, -5.99], [3.4, -6.99], [10.2, -6.99], [10.2, .41], [7.9199, .41], [7.9199, 0.6096], [XR, 0.6096], [XR, ZC], [XC, ZC], FACADE_END, [6.0573, 9.784], [1.5661, 7.9468]];
 world.add(flat(ROOM, 0, MAT.floor));
@@ -685,9 +708,9 @@ function deskTop(pts) {
 
 const screenTex = canvasTex(256, 160, (g, w, h) => {
   const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#f1ece6'); gr.addColorStop(1, '#ded3c8'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
-  g.fillStyle = '#6b4630'; g.fillRect(0, 0, w, 14);
+  g.fillStyle = ACC.main; g.fillRect(0, 0, w, 14);
   g.fillStyle = '#ffffff'; g.fillRect(14, 26, 120, 80); g.fillRect(144, 26, 98, 38); g.fillRect(144, 72, 98, 34); g.fillRect(14, 116, 228, 30);
-  g.strokeStyle = '#a07a5c'; g.lineWidth = 2; g.beginPath(); g.moveTo(20, 96); for (let i = 0; i < 10; i++) g.lineTo(20 + i * 12, 96 - Math.sin(i * .8) * 18 - i * 3); g.stroke();
+  g.strokeStyle = ACC.light; g.lineWidth = 2; g.beginPath(); g.moveTo(20, 96); for (let i = 0; i < 10; i++) g.lineTo(20 + i * 12, 96 - Math.sin(i * .8) * 18 - i * 3); g.stroke();
 });
 const monScreenMat = std({ map: screenTex, emissive: 0xffffff, emissiveMap: screenTex, emissiveIntensity: .55, roughness: .3 });
 
@@ -768,7 +791,7 @@ const longLeg = makeLeg(J.longOuter, J.longInner, J.long[2]);
 const shortLeg = makeLeg([J.shortOuter[1], J.shortOuter[0]], [J.shortInner[1], J.shortInner[0]], J.short[0]);
 /* loft frames under every module joint and near the column ends */
 for (const j of [...J.long, ...J.short]) world.add(loftFrame(j[0], j[1]));
-for (const s of [longLeg(6.05), shortLeg(2.18)]) world.add(loftFrame(s.O, s.I));
+for (const s of [longLeg(6.05 + LEXT), shortLeg(2.18)]) world.add(loftFrame(s.O, s.I));
 { // corner module: diagonal support between the two joints
   const a = mid(...J.long[2]), b = mid(...J.short[0]);
   const s = add(mid(a, b), [0.05, -0.45]);
@@ -777,8 +800,8 @@ for (const s of [longLeg(6.05), shortLeg(2.18)]) world.add(loftFrame(s.O, s.I));
 /* 14 workstations, staggered: the two sides of each leg are offset by half a pitch;
    the outer side of the long leg stops 1.6 m short of the right wall */
 let n = 1;
-for (const t of [4.6, 3.4, 2.2, 1.0, -.2]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
-for (const t of [.4, 1.6, 2.8, 4.0, 5.2]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
+for (const t of [5.8, 4.6, 3.4, 2.2, 1.0, -.2]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
+for (const t of [.4, 1.6, 2.8, 4.0, 5.2, 6.4]) { const s = longLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
 for (const t of [1.3, -.1]) { const s = shortLeg(t); workplace('АРМ ' + n++, s.c, s.out, s.w / 2, { along: s.u }); }
 for (const t of [.6, 2.0]) { const s = shortLeg(t); workplace('АРМ ' + n++, s.c, neg(s.out), s.w / 2, { along: neg(s.u) }); }
 world.add(label('Рабочая группа · e1', add(longLeg(3.1).c, [.0, .0]), 1.75, 'grp'));
@@ -798,10 +821,10 @@ function arcDesk(A, steps = 48) {
   return at;
 }
 const d2550 = arcDesk(P.A2550);
-[.28, .72].forEach((f, k) => { const s = d2550(f); workplace('АРМ ' + (18 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
+[.28, .72].forEach((f, k) => { const s = d2550(f); workplace('АРМ ' + (20 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Технологическая группа · e3', d2550(.5).c, 1.75, 'grp'));
 const d2750 = arcDesk({ ...P.A2750, ang: [-.746, -1.150], c: add(P.A2750.c, [2.35, .05]), c2: add(P.A2750.c2, [2.35, .05]) });   // ≈3.2 m long, clear of the column/board/ЦМФУ on the right wall
-[1 / 6, .5, 5 / 6].forEach((f, k) => { const s = d2750(f); workplace('АРМ ' + (15 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
+[1 / 6, .5, 5 / 6].forEach((f, k) => { const s = d2750(f); workplace('АРМ ' + (17 + k), s.c, neg(s.user), s.w / 2, { monitorAt: -(s.w / 2 - .18), along: s.tan }); });
 world.add(label('Креативные решения · e2', d2750(.5).c, 1.75, 'grp'));
 
 /* ---------- АРМП: teacher sits right at the corner of e1, in the 833 mm notch ---------- */
@@ -824,53 +847,57 @@ function cabinet(p, f) {
   g.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; });
   return place(g, p, 0, f);
 }
+const MAT_ACC_LID = std({ color: ACC.lid, roughness: .5 });
 function mfp(p, f, colour) {
   const g = new THREE.Group();
   const b = new THREE.Mesh(new RoundedBoxGeometry(.52, .42, .46, 2, .02), MAT.greyPlastic); b.position.y = .21; g.add(b);
-  const lid = new THREE.Mesh(new THREE.BoxGeometry(.5, .04, .44), std({ color: colour ? 0x6b4630 : 0x2a2a2a, roughness: .5 })); lid.position.y = .44; g.add(lid);
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(.5, .04, .44), (colour ? MAT_ACC_LID : std({ color: 0x2a2a2a, roughness: .5 }))); lid.position.y = .44; g.add(lid);
   const tray = new THREE.Mesh(new THREE.BoxGeometry(.3, .01, .14), MAT.plastic); tray.position.set(0, .2, .26); g.add(tray);
   g.traverse(o => { if (o.isMesh) o.castShadow = true; });
   return place(g, p, TOP, f);
 }
-for (const [p, f, name, col] of [[[5.15, .98], [0, 1], 'ЧМФУ', false], [[XR - .4, 5.85], [-1, 0], 'ЦМФУ', true]]) {
+for (const [p, f, name, col] of [[[4.75, .98], [0, 1], 'ЧМФУ', false], [[XR - .4, 3.85], [-1, 0], 'ЦМФУ', true]]) {
   world.add(cabinet(p, f)); world.add(mfp(p, f, col)); world.add(label(name + ' · e5', p, 1.4, 'tbc'));
 }
 /* interactive board 86" on a mobile stand, inside the V, facing the teacher */
 const boardTex = canvasTex(1280, 720, (g, w, h) => {
   g.fillStyle = '#fbfaf8'; g.fillRect(0, 0, w, h);
-  g.fillStyle = '#6b4630'; g.font = '600 40px Unbounded, sans-serif'; g.textBaseline = 'top'; g.fillText('Постановка задачи', 60, 50);
-  g.strokeStyle = '#6b4630'; g.lineWidth = 5; g.lineJoin = 'round';
-  const box = (x, y, bw, bh, t) => { g.strokeRect(x, y, bw, bh); g.fillStyle = '#6b4630'; g.font = '500 26px "Golos Text", sans-serif'; g.fillText(t, x + 20, y + bh / 2 - 14); };
+  g.fillStyle = ACC.main; g.font = '600 40px Unbounded, sans-serif'; g.textBaseline = 'top'; g.fillText('Постановка задачи', 60, 50);
+  g.strokeStyle = ACC.main; g.lineWidth = 5; g.lineJoin = 'round';
+  const box = (x, y, bw, bh, t) => { g.strokeRect(x, y, bw, bh); g.fillStyle = ACC.main; g.font = '500 26px "Golos Text", sans-serif'; g.fillText(t, x + 20, y + bh / 2 - 14); };
   box(60, 180, 300, 110, 'Исходные данные'); box(490, 180, 300, 110, 'Анализ (ИИ)'); box(920, 180, 300, 110, '3D / VR модель');
   box(490, 420, 300, 110, 'Решение');
   g.beginPath(); g.moveTo(360, 235); g.lineTo(490, 235); g.moveTo(790, 235); g.lineTo(920, 235); g.moveTo(640, 290); g.lineTo(640, 420); g.moveTo(1070, 290); g.lineTo(1070, 475); g.lineTo(790, 475); g.stroke();
-  g.strokeStyle = '#a07a5c'; g.lineWidth = 3; g.beginPath(); g.moveTo(80, 620); g.bezierCurveTo(300, 560, 420, 680, 640, 610); g.stroke();
+  g.strokeStyle = ACC.light; g.lineWidth = 3; g.beginPath(); g.moveTo(80, 620); g.bezierCurveTo(300, 560, 420, 680, 640, 610); g.stroke();
   g.fillStyle = '#2a2522'; g.fillRect(0, h - 56, w, 56);
   g.fillStyle = '#fbfaf8'; for (let i = 0; i < 7; i++) { g.beginPath(); g.arc(w / 2 - 210 + i * 70, h - 28, 12, 0, 7); g.fill(); }
 });
 {
-  // wall-mounted on the right wall between the ЦМФУ cabinet and the right column (a floor stand would hit the chairs)
-  const pos = [XR - .06, 7.45], f = [-1, 0];
+  // on its mobile stand on the far side of the technology-group desk, by the windows, facing the room
+  const pos = [2.2, 3.9], f = norm([1, -.16]);
   const grp = new THREE.Group();
-  const panel = new THREE.Mesh(new RoundedBoxGeometry(1.96, 1.16, .08, 2, .015), MAT.plastic); panel.position.y = 1.5; grp.add(panel);
+  const panel = new THREE.Mesh(new RoundedBoxGeometry(1.96, 1.16, .08, 2, .015), MAT.plastic); panel.position.y = 1.4; grp.add(panel);
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.07), std({ map: boardTex, emissive: 0xffffff, emissiveMap: boardTex, emissiveIntensity: .55, roughness: .4 }));
-  scr.position.set(0, 1.5, .041); grp.add(scr);
-  const tray = new THREE.Mesh(new THREE.BoxGeometry(1.2, .03, .08), MAT.metal); tray.position.set(0, .9, .06); grp.add(tray);
+  scr.position.set(0, 1.4, .041); grp.add(scr);
+  for (const x of [-.4, .4]) { const post = new THREE.Mesh(new THREE.BoxGeometry(.07, 1.75, .05), MAT.metal); post.position.set(x, .9, -.07); grp.add(post); }
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(.9, .05, .05), MAT.metal); bar.position.set(0, .45, -.07); grp.add(bar);
+  for (const x of [-.4, .4]) { const foot = new THREE.Mesh(new THREE.BoxGeometry(.07, .05, .7), MAT.metal); foot.position.set(x, .085, -.07); grp.add(foot);
+    for (const z of [-.38, .24]) { const wh = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .03, 14), MAT.plastic); wh.rotation.z = Math.PI / 2; wh.position.set(x, .035, z); grp.add(wh); } }
   grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
   place(grp, pos, 0, f); world.add(grp);
-  world.add(label('Интерактивная доска 86″', [XR - .4, 7.45], 2.25, 'tbc'));
+  world.add(label('Интерактивная доска 86″', pos, 2.15, 'tbc'));
 }
 
 /* main screen ГЭСЦИИ on the right wall, slightly curved */
 const bigScreenTex = canvasTex(1280, 720, (g, w, h) => {
   g.fillStyle = '#16120f'; g.fillRect(0, 0, w, h);
   g.fillStyle = '#f2ebe4'; g.font = '600 38px Unbounded, sans-serif'; g.textBaseline = 'top'; g.fillText('СИТУАЦИОННЫЙ ЦЕНТР ИИ', 48, 40);
-  g.fillStyle = '#b79478'; g.font = '500 22px "Golos Text", sans-serif'; g.fillText('Задачи рабочих групп · прогресс выполнения', 48, 96);
+  g.fillStyle = ACC.mid; g.font = '500 22px "Golos Text", sans-serif'; g.fillText('Задачи рабочих групп · прогресс выполнения', 48, 96);
   const cards = [[48, 150, 380, 240], [452, 150, 380, 240], [856, 150, 376, 240], [48, 414, 784, 260], [856, 414, 376, 260]];
   cards.forEach(([x, y, cw, ch]) => { g.fillStyle = '#251e19'; g.fillRect(x, y, cw, ch); });
   const groups = [['Рабочая группа', .72], ['Креативные решения', .55], ['Технологическая', .38]];
-  groups.forEach(([nm, v], i) => { const [x, y, cw] = cards[i]; g.fillStyle = '#d9c6b5'; g.font = '500 22px "Golos Text", sans-serif'; g.fillText(nm, x + 24, y + 24); g.fillStyle = '#f2ebe4'; g.font = '600 64px Unbounded, sans-serif'; g.fillText(Math.round(v * 100) + '%', x + 24, y + 70); g.fillStyle = '#3a2f27'; g.fillRect(x + 24, y + 180, cw - 48, 12); g.fillStyle = '#c08a62'; g.fillRect(x + 24, y + 180, (cw - 48) * v, 12); });
-  g.strokeStyle = '#c08a62'; g.lineWidth = 4; g.beginPath();
+  groups.forEach(([nm, v], i) => { const [x, y, cw] = cards[i]; g.fillStyle = ACC.pale; g.font = '500 22px "Golos Text", sans-serif'; g.fillText(nm, x + 24, y + 24); g.fillStyle = '#f2ebe4'; g.font = '600 64px Unbounded, sans-serif'; g.fillText(Math.round(v * 100) + '%', x + 24, y + 70); g.fillStyle = '#3a2f27'; g.fillRect(x + 24, y + 180, cw - 48, 12); g.fillStyle = ACC.warm; g.fillRect(x + 24, y + 180, (cw - 48) * v, 12); });
+  g.strokeStyle = ACC.warm; g.lineWidth = 4; g.beginPath();
   for (let i = 0; i <= 24; i++) { const x = 80 + i * 29, y = 620 - (Math.sin(i * .5) * 40 + i * 6); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
   for (let i = 0; i < 6; i++) { g.fillStyle = i % 2 ? '#3a2f27' : '#4a3a2f'; g.fillRect(880, 450 + i * 36, 330 * (1 - i * .12), 24); }
 });
@@ -892,24 +919,24 @@ delete window.__mainScreen;   // the old 2.7 m screen is replaced by the video w
 const wallScreenTex = canvasTex(2400, 820, (g, w, h) => {
   g.fillStyle = '#15110e'; g.fillRect(0, 0, w, h);
   g.fillStyle = '#f2ebe4'; g.font = '600 46px Unbounded, sans-serif'; g.textBaseline = 'top'; g.fillText('СИТУАЦИОННЫЙ ЦЕНТР ИИ', 60, 44);
-  g.fillStyle = '#b79478'; g.font = '500 26px "Golos Text", sans-serif'; g.fillText('Задачи рабочих групп · прогресс выполнения · данные в реальном времени', 60, 108);
+  g.fillStyle = ACC.mid; g.font = '500 26px "Golos Text", sans-serif'; g.fillText('Задачи рабочих групп · прогресс выполнения · данные в реальном времени', 60, 108);
   const groups = [['Рабочая группа', .72], ['Креативные решения', .55], ['Технологическая группа', .38], ['VR-зона', .64]];
   groups.forEach(([nm, v], i) => {
     const x = 60 + i * 340, y = 180, cw = 310, ch = 250;
     g.fillStyle = '#241d18'; g.fillRect(x, y, cw, ch);
-    g.fillStyle = '#d9c6b5'; g.font = '500 24px "Golos Text", sans-serif'; g.fillText(nm, x + 24, y + 24);
+    g.fillStyle = ACC.pale; g.font = '500 24px "Golos Text", sans-serif'; g.fillText(nm, x + 24, y + 24);
     g.fillStyle = '#f2ebe4'; g.font = '600 70px Unbounded, sans-serif'; g.fillText(Math.round(v * 100) + '%', x + 24, y + 76);
-    g.fillStyle = '#3a2f27'; g.fillRect(x + 24, y + 200, cw - 48, 12); g.fillStyle = '#c08a62'; g.fillRect(x + 24, y + 200, (cw - 48) * v, 12);
+    g.fillStyle = '#3a2f27'; g.fillRect(x + 24, y + 200, cw - 48, 12); g.fillStyle = ACC.warm; g.fillRect(x + 24, y + 200, (cw - 48) * v, 12);
   });
   g.fillStyle = '#241d18'; g.fillRect(60, 460, 1330, 310);
-  g.strokeStyle = '#c08a62'; g.lineWidth = 5; g.beginPath();
+  g.strokeStyle = ACC.warm; g.lineWidth = 5; g.beginPath();
   for (let i = 0; i <= 40; i++) { const x = 90 + i * 32, y = 720 - (Math.sin(i * .35) * 50 + i * 4.5); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
   g.fillStyle = '#241d18'; g.fillRect(1430, 180, 910, 590);
-  g.fillStyle = '#d9c6b5'; g.font = '500 26px "Golos Text", sans-serif'; g.fillText('Поставленные задачи', 1460, 205);
+  g.fillStyle = ACC.pale; g.font = '500 26px "Golos Text", sans-serif'; g.fillText('Поставленные задачи', 1460, 205);
   ['Анализ обращений', 'Модель объекта (3D)', 'Сценарий VR-тренинга', 'Прогноз нагрузки', 'Отчёт для руководства', 'Проверка гипотез ИИ'].forEach((t, i) => {
     const y = 270 + i * 80; g.fillStyle = i % 2 ? '#2e251f' : '#382d25'; g.fillRect(1460, y, 850, 62);
     g.fillStyle = '#f2ebe4'; g.font = '500 26px "Golos Text", sans-serif'; g.fillText(t, 1490, y + 16);
-    g.fillStyle = '#c08a62'; g.fillRect(2130, y + 22, 150 * (1 - i * .14), 18);
+    g.fillStyle = ACC.warm; g.fillRect(2130, y + 22, 150 * (1 - i * .14), 18);
   });
 });
 {
@@ -1059,12 +1086,12 @@ const vrFloorTex = canvasTex(1024, 1024, () => {});
 /* ЭVR screen on a stand at the right wall */
 const vrScreenTex = canvasTex(1280, 720, (g, w, h) => {
   g.fillStyle = '#16120f'; g.fillRect(0, 0, w, h);
-  g.strokeStyle = '#7a5a43'; g.lineWidth = 2;
+  g.strokeStyle = ACC.grid; g.lineWidth = 2;
   for (let i = 0; i < 14; i++) { g.beginPath(); g.moveTo(w / 2, h * .42); g.lineTo(i / 13 * w * 1.6 - w * .3, h); g.stroke(); }
   for (let i = 0; i < 8; i++) { const y = h * .42 + Math.pow(i / 8, 2) * h * .58; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
-  g.fillStyle = '#c08a62'; for (let i = 0; i < 18; i++) { const x = 60 + i * 66, bh = 60 + ((i * 37) % 140); g.fillRect(x, h * .42 - bh, 40, bh); }
+  g.fillStyle = ACC.warm; for (let i = 0; i < 18; i++) { const x = 60 + i * 66, bh = 60 + ((i * 37) % 140); g.fillRect(x, h * .42 - bh, 40, bh); }
   g.fillStyle = '#f2ebe4'; g.font = '600 64px Unbounded, sans-serif'; g.textBaseline = 'top'; g.fillText('VR', 60, 50);
-  g.font = '500 26px "Golos Text", sans-serif'; g.fillStyle = '#d9c6b5'; g.fillText('Трансляция из VR-шлема', 60, 130);
+  g.font = '500 26px "Golos Text", sans-serif'; g.fillStyle = ACC.pale; g.fillText('Трансляция из VR-шлема', 60, 130);
 });
 {
   // floor stand on two legs in front of the right wall, centred on the VR platform, ≈ 120" (2.66 × 1.5 m)
@@ -1108,7 +1135,7 @@ const vrScreenTex = canvasTex(1280, 720, (g, w, h) => {
   world.add(beam([9.45, HZB + .1], [10.05, HZB + .1], .18, .72, .08, MAT.radiator));
 }
 
-function buildLiftGraphics() {
+function paintLiftTextures() {
   // hexagon on the floor
   const c = vrFloorTex.image, g = c.getContext('2d'), w = c.width, cx = w / 2, R = w / 2 / 1.15;
   g.clearRect(0, 0, w, w);
@@ -1161,6 +1188,9 @@ function buildLiftGraphics() {
     cube(w * .35, h * .62, w * .14); cube(w * .62, h * .7, w * .1); cube(w * .45, h * .8, w * .08);
     traces(g, w, h * .14, { seed: 97, count: 4, scale: .8 });
   });
+}
+function buildLiftGraphics() {
+  paintLiftTextures();
   // vertical signs on the piers beside the niches
   const sign = (text, a, b) => {
     const art = wallArt(b - a - .1, 3.0, (g, w, h) => {
@@ -1269,6 +1299,17 @@ function toggle(id, fn) {
 toggle('t-labels', on => document.getElementById('labels').classList.toggle('off', !on));
 toggle('t-tbc', on => { tbcGroup.visible = on; });
 toggle('t-people', on => { chairsGroup.visible = on; });
+function setAccent(name) {
+  Object.assign(ACC, PALETTES[name]); BROWN = ACC.main; BROWN_2 = ACC.light;
+  for (const t of ALL_TEX) t.userData.redraw();
+  paintLiftTextures();
+  MAT_ACC_LID.color.set(ACC.lid);
+  const st = document.documentElement.style;
+  st.setProperty('--lbl', ACC.ui); st.setProperty('--lbl-line', ACC.uiLine);
+  if (name === 'blue') st.setProperty('--accent', ACC.ui); else st.removeProperty('--accent');
+  try { localStorage.setItem('sc-accent', name); } catch (e) {}
+}
+toggle('t-blue', on => setAccent(on ? 'blue' : 'brown'));
 
 /* ---------- loop ---------- */
 const tmp = new THREE.Vector3();
@@ -1305,6 +1346,8 @@ Promise.race([
   boardTex.userData.redraw();
   wallScreenTex.userData.redraw();
   buildLiftGraphics();
+  let saved = 'brown'; try { saved = localStorage.getItem('sc-accent') || 'brown'; } catch (e) {}
+  if (saved === 'blue') { document.getElementById('t-blue').setAttribute('aria-pressed', 'true'); setAccent('blue'); }
   bigScreenTex.userData.redraw();
   document.getElementById('loading').remove();
   requestAnimationFrame(frame);
